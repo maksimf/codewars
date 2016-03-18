@@ -1,23 +1,22 @@
 require 'pry'
+def determinant(matrix, value = 0, depth = 0, totals = [])
+  first_row = matrix.first
+  @initial_matrix_size ||= first_row.size
+  depth += 1
 
+  return matrix[0][0] if @initial_matrix_size == 1
 
-def determinant(matrix, coeff = 1, determinant_value = 0)
-  puts "enter method #{matrix}, #{determinant_value}"
-  n = matrix.first.size
+  return first_row if matrix.size == 1
 
-  return matrix.first if matrix.size == 1
+  first_row.each_with_index do |col_item, i|
+    minor_det = (i.odd? ? -1 : 1) * col_item * determinant(minor(matrix, i), value, depth, totals)
+    value += minor_det
 
-  matrix.first.each_with_index do |col_item, i|
-    # puts "col_item: #{col_item}"
-    puts "#{sign(i)} * #{col_item} * #{determinant(minor(matrix, i), determinant_value)}"
-    determinant_value += sign(i) * col_item * determinant(minor(matrix, i), coeff, determinant_value)
+    (totals.push(minor_det) && value = 0) if depth == 1
   end
 
-  determinant_value
-end
-
-def sign(switch)
-  switch.odd? ? -1 : 1
+  binding.pry
+  totals.size == @initial_matrix_size ? totals.reduce(:+) : value
 end
 
 def minor(matrix, el_index)
@@ -30,10 +29,12 @@ def minor(matrix, el_index)
     end
   end
 
-  foo = minor_matrix.size == 1 ? minor_matrix : minor_matrix.each_slice(minor_size).to_a
-# puts foo.inspect
-  foo
+  minor_matrix.size == 1 ? minor_matrix : minor_matrix.each_slice(minor_size).to_a
 end
 
-# determinant([ [1, 3], [2,5]])
-puts determinant([[2,5,3], [1,-2,-1], [1, 3, 4]])
+# puts 'Should be -20'
+# puts determinant([[2,5,3], [1,-2,-1], [1,3,4]])
+puts 'Should be -1'
+puts determinant([[1,3], [2,5]])
+# puts 'Should be 1'
+# puts determinant([[1]])
